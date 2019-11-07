@@ -2,8 +2,24 @@ language: python
 python:
 - '3.6'
 install:
-- pip install ansible==2.3.0 molecule apache-libcloud
+- pip install ansible==2.8.6 molecule[gce] apache-libcloud
 script:
-- molecule --debug test
+- molecule test --scenario-name gce
 after_script:
-- molecule --debug destroy
+- molecule destroy --scenario-name gce
+env:
+  matrix:
+  - GCE_CREDENTIALS_FILE="$(pwd)/credentials.json"
+  global:
+  - secure: YQyGWq0SThfMpI10cMTO5snDXJ+AzAlcCQ3eRVVW0WslahQWNntfKfh8785RIler8VAtmbMn3NmsUusCGe2PLqVLOuE2elDhpzz40IrgcaXbdnQvgsDr0MHTrWyTBxhX2QmC/kC2r7YVbqbLEASVqOCqtoLFODvq6fkwJ0hrRzHWOOVv9UjYq2sdNSmlpdIJzU2O0J8F6WuD8e7c5BXfMNXWcJ6YCj/r6e33TLMBgnCt1SYSQU5YrWELjvjt2n9210Obp8C++m+pq1V4aVc+VQDTTwjwMkAfsa9e1DU3nm1K8mJtI1vFI9h+GI/yRsGcoDiGkDThO15aBeTUcTiHIg2TpricY2q4ccVE5rfQ2iZVC0ZiDu8HU0E+JYC81KlRXPux4rdjOK9jJkcV4x/19Nfe4XRIk0jE8nuYCo3BWyC9in3zcXEebi+GYBDa5Y0z9RG914dg2pcVq2PsUk6am59nUONt6N62dScJjXm7De8pZCCMNQhosAgXWql1uALiA4DOZ7+TgVL3NVB9vV19Ue5x9i4eYu2KyE4tRWlBYlXMQgBZ8aT+EYOWSdRwSomSFh6dxCoYa/hEZtuG9kvPYkCdWuXhlZC/IiMPWcFinCDRJ7CbSeoDWAUeO2j4HaAFfKQvBaWi3qhTJf8FUZjZP9tyO6/I3gZGY1IckH0k0zk=
+  - secure: Ez98hswTTTI0t8waINUUT5xOc1e6Nqv+hjPHotAKy1/K48bcOdhZsljkW6ehWenkth069NUD/aobHkjRuPo8IaQ05Vm0UK5hj3xvUA2mJUSnHRVZc2Nles1N4yW/LpdpJBimTpGXr7NA9Ngox/kwqZjy7Ju5xr1RKZxyiK2PYiRX/6qWQk0XwYAUOIMjszHCHwisnfNRueRsaRP0KKht+PKBsbOSbQ7Kcoh3EXnCTx3/ZNux2xpj0rVe9JLCduBcj0KruUUZBkUQIG7FTiY+QBXa2EQnfh/FBoorm7hTj1fn+IwyVHoumFjiamIPfkC1xk7nVeNHhy2MJEgZaxcksaDylTGrnx3NAWRfWdUJqvBoLpcvEEqIyvDCjqIMnRzAQRC1xYT4wb6+3UwfyRN9GYaxVN3hVCKeH1T9iUnko44WMEguNkp5/PXEM+NFX1gbsx1OUXGmoUaAhwtwS6u++jD2KV2i2rCCVh8k3lbt+PkFYOLHNYRwKifXgKQqntyktWG5EyN3pZJRn8/hqKc/1rwam2UtmtYRgOFyvpCNH/gUIT/Ehk7ADOUpH1Mgrc4B45gdfOrxAAP5JjKsaPyE7VDzXkCk2H3ReT80q+szAkgOWMzEQ3ju6xjaQGGzyqkxWmSW4BdoEYuZY0JJzwQEoQ+kBBFVzGEraN6DtExSTfU=
+before_install:
+- openssl aes-256-cbc -K $encrypted_b1f6b1eff77e_key -iv $encrypted_b1f6b1eff77e_iv
+  -in secrets.tar.enc -out secrets.tar -d
+- tar xvf secrets.tar
+- mv google_compute_engine /home/travis/.ssh/
+- chmod 0600 /home/travis/.ssh/google_compute_engine
+notifications:
+  slack:
+    rooms:
+      secure: TRH99JXW8g2kTd/7Ky3OpDXSKxc1vAbfQ3RRv8NL9w3Db88sAzBJutsTI+E2Zl4puht0JUNWhixXOeaAOvGzgUKihHTG1OetIvbgB0nmCwn1N9NEW8yMcZyS5oLo7K73pSTIRTTs0rlOXHOi+0altvkTCyKc5R+cAlFq1+5C5QbtOk/wRcnwT9zY9D7+BvJtAeCbQONosuxTsdD4LnYHlOTorre/YOV84JuRouH1+Plt/ZWWm2GCWxw/prpXAvEXf3W+7Xg97nruobtIFSst6fF//e+x6ecI1RMXq8P0fQopExrLUeF+rpo329dnvqf24VEZPSIdERGKneTY/+uCLi9OxhEN98pEtMrR8sZD9XHsZ/jKlha5j+CmebwOZZSM3/U1ilfaML/es/y5VI+zGDLqe9d/FSu1tAUo7GagJlg1E43dFPjsiwPj7Sa0BtKcmgMbYjGFMTruPTfJ5N327VEddmdLlt6/5uZahIXYuN0Vi9J8hrc+noEtyaHm/E875of0VNL5oBma2pzn46Ueg9zBvpySd0i2Z57KBlIKVdWx4AKrJ9qFm+zEkRt3EDK2HdBRRxMAq6EQst5NRAXYIAX+SOZcS+IblfR9dBbAa9K1KCUBIZaRff1jaIYQzGjM5P493ErEN8WH9AFlqxvNFlJQJZLXSMgMxywyxnEMFCo=
